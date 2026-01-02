@@ -21,7 +21,7 @@ def spline_interpolate(t, v, max_gap=10):
     cs = CubicSpline(t[valid], v[valid])
     nan_idx = np.where(np.isnan(v))[0]
     for i in nan_idx:
-        # distance au point valide le plus proche
+        # closer valid point
         left = np.where(valid[:i])[0]
         right = np.where(valid[i+1:])[0]
 
@@ -49,18 +49,17 @@ def compute_kinematics(t, x, y):
     spline_x = build_spline(t, x)
     spline_y = build_spline(t, y)
 
-    vx = spline_x(t, 1)   # 1ère dérivée
+    vx = spline_x(t, 1)   # 1st derivative
     vy = spline_y(t, 1)
 
-    ax = spline_x(t, 2)   # 2ème dérivée
+    ax = spline_x(t, 2)   # 2nd derivative
     ay = spline_y(t, 2)
 
     return vx, vy, ax, ay
 
 def temporal_nms(probs, preds, cls, window=2):
     """
-    Garde un seul événement (hit ou bounce)
-    autour du maximum de probabilité.
+    Suppresses predictions of class `cls` if there is a higher probability
     """
     final = preds.copy()
     idxs = np.where(preds == cls)[0]

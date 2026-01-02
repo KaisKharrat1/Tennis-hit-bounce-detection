@@ -30,7 +30,7 @@ def process_json(json_path, window=10):
 
     vx, vy, ax, ay = compute_kinematics(t, x_s, y_s)
 
-    # --- sécurité : remplacer NaN et clipper ---
+    # --- security : replace NaN and clip ---
     vx = np.nan_to_num(vx, nan=0.0, posinf=0.0, neginf=0.0)
     vy = np.nan_to_num(vy, nan=0.0, posinf=0.0, neginf=0.0)
     ax = np.nan_to_num(ax, nan=0.0, posinf=0.0, neginf=0.0)
@@ -52,15 +52,15 @@ def process_json(json_path, window=10):
         d_angle
     ], axis=1)
 
-    # --- clip des valeurs extrêmes pour sécurité ---
+    # --- clip ---
     features = np.clip(features, -1e3, 1e3)
 
-    # --- normalisation par colonne ---
+    # --- normalisation  ---
     mean = np.mean(features, axis=0)
     std = np.std(features, axis=0) + 1e-6
     features = (features - mean) / std
 
-    # --- vérifier si tout est fini ---
+    # --- verification ---
     if not np.all(np.isfinite(features)):
         raise ValueError(f"NaN ou Inf restant dans {json_path}")
 
@@ -68,7 +68,7 @@ def process_json(json_path, window=10):
     frames = sorted(ball_data.keys(), key=lambda x: int(x))
     labels = np.array([LABEL_MAP[ball_data[f]["action"]] for f in frames])
 
-    # --- fenêtrage pour BiLSTM ---
+    # --- creating windows for the model ---
     X, y = [], []
     half = window // 2
     for i in range(half, len(features) - half):
@@ -107,7 +107,7 @@ class TennisDataset(Dataset):
 class BalancedTennisDataset(Dataset):
     def __init__(self, json_files, window=10):
         self.samples = []
-        self.labels = []   # 👈 IMPORTANT
+        self.labels = [] 
         self.window = window
 
         for path in json_files:
@@ -194,7 +194,7 @@ class HitBounceBiLSTM(nn.Module):
     def forward(self, x):
         # x : (B, T, F)
         out, _ = self.lstm(x)
-        center = out[:, out.shape[1] // 2, :]  # frame centrale
+        center = out[:, out.shape[1] // 2, :]  # center frame
         return self.fc(center)
 
 class FocalLoss(nn.Module):
