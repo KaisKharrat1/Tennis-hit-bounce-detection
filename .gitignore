@@ -1,0 +1,11 @@
+# Python
+__pycache__/
+*.pyc
+venv/
+.vscode/
+.idea/
+Data hit & bounce/
+*.json
+.DS_Store
+*.pt
+!experiments/run_01/checkpoints/epoch_25.pt
